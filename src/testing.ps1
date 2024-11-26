@@ -1,4 +1,5 @@
-# Project related variables
+
+    # Project related variables
 [string] $ProjectName = "Visionary"
 [string] $ProjectVersion = "0.0.0.1"
 function logo {
@@ -27,13 +28,11 @@ function logo {
     #Write-Host "===========================================================" -ForegroundColor blue
 
     [int] $i = 0
-    
     do{
         $i++
         Start-Sleep -Milliseconds 5
         Write-Host "~" -NoNewline -ForegroundColor red
     }until ($i -eq 50)
-    
     Write-Host "`n  Witness the unseen.`n" 
     Write-Host "  Booting Visionary" -NoNewline
 
