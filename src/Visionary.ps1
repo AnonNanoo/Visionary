@@ -7,15 +7,15 @@ function logo {
     clear-host
     Write-Host ""
     Start-Sleep -Seconds $time
-    Write-Host "                               =*==*##*+**+   " 
+    Write-Host "                     ____--=====*==*##*+**+   " 
     Start-Sleep -Seconds $time                                                               
-    Write-Host "                   --====**#%%**#%%%%###**-   " 
+    Write-Host "              ___--======**#%%**#%%%%###**-   " 
     Start-Sleep -Seconds $time
     Write-Host "            -==++ +%%#+#%%**#  +%%%%%%%%*+-   " 
     Start-Sleep -Seconds $time
     Write-Host "         -*%%%%%=  %%#####*= *%%%%%%%%+-      " 
     Start-Sleep -Seconds $time
-    Write-Host "       --+%%%%%%%%-  ---   -+%%%%%%%%#=       "
+    Write-Host "       --+%%%%%%%%-       -+%%%%%%%%#=       "
     Start-Sleep -Seconds $time
     Write-Host "      ----#%%%%%%%%%%%%%%%%%%%%#*+---         " 
     Start-Sleep -Seconds $time
