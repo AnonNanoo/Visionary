@@ -7,30 +7,30 @@ function logo {
     clear-host
     Write-Host ""
     Start-Sleep -Seconds $time
-    Write-Host "                :===**#**++++++++=-:       "                                                                      
+    Write-Host "                   :===**#**++++++++=-:       "                                                                      
     Start-Sleep -Seconds $time
-    Write-Host "          :=-:-:       : :    ::::---==-   " 
+    Write-Host "             :=-:-:       : :    ::::---==-   " 
     Start-Sleep -Seconds $time
-    Write-Host "        :-==++:+%%#+#%%**#+:+%%%%%%%%*+-   " 
+    Write-Host "           :-==++:+%%#+#%%**#+:+%%%%%%%%*+-   " 
     Start-Sleep -Seconds $time
-    Write-Host "      -::*%%%%=:+%%#####*=:*%%%%%%%%+-:    " 
+    Write-Host "         -::*%%%%=:+%%#####*=:*%%%%%%%%+-:    " 
     Start-Sleep -Seconds $time
-    Write-Host "    -- +%%%%%%%*-=:-=::-+%%%%%%%%#=:::     "
+    Write-Host "       -- +%%%%%%%*-=:-=::-+%%%%%%%%#=:::     "
     Start-Sleep -Seconds $time
-    Write-Host "   ----#%%%%%%%%%%%%%%%%%%%%#*+---::       " 
+    Write-Host "      ----#%%%%%%%%%%%%%%%%%%%%#*+---::       " 
     Start-Sleep -Seconds $time
-    Write-Host " ::::::-=+*++=+*#####%++++-::::::          " 
+    Write-Host "    ::::::-=+*++=+*#####%++++-::::::          " 
     Start-Sleep -Seconds $time
-    Write-Host " ==-          : :  ::: ::  :               "
+    Write-Host "    ==-          : :  ::: ::  :               "
     Start-Sleep -Seconds $time
-    Write-Host "                                             ($ProjectVersion)"
+    Write-Host "                              Visionary ($ProjectVersion)"
     #Write-Host "===========================================================" -ForegroundColor blue
 
     [int] $i = 0
     do{
         $i++
         Start-Sleep -Milliseconds 5
-        Write-Host "=" -NoNewline -ForegroundColor blue
+        Write-Host "=" -NoNewline -ForegroundColor red
     }until ($i -eq 50)
     Write-Host "`nWitness the unseen.`n" 
     Write-Host "Booting Visionary" -NoNewline
