@@ -3,7 +3,7 @@
 [string] $ProjectVersion = "0.0.0.1"
 function logo {
     # This function prints the logo and welcome message to the console 
-    [double] $time = 0.2
+    [double] $time = 0.15
     clear-host
     Write-Host ""
     Start-Sleep -Seconds $time
@@ -11,9 +11,9 @@ function logo {
     Start-Sleep -Seconds $time                                                               
     Write-Host "              ___--======**#%%**#%%%%###**-   " 
     Start-Sleep -Seconds $time
-    Write-Host "            -==++ +%%#+#%%**#  +%%%%%%%%*+-   " 
+    Write-Host "            -==++ +%%######%  +%%%%%%%%*+-   " 
     Start-Sleep -Seconds $time
-    Write-Host "         -*%%%%%=  %%#####*= *%%%%%%%%+-      " 
+    Write-Host "         -*%%%%%=  %%#####% *%%%%%%%%+-      " 
     Start-Sleep -Seconds $time
     Write-Host "       --+%%%%%%%%-       -+%%%%%%%%#=       "
     Start-Sleep -Seconds $time
@@ -47,4 +47,16 @@ function logo {
     Read-Host
 }
 
+# Call the 
+
+function main
+{
+    logo
+    Write-Host "Welcome to Visionary" -ForegroundColor Green
+    Write-Host "Project Name: $ProjectName" -ForegroundColor Green
+    Write-Host "Project Version: $ProjectVersion" -ForegroundColor Green
+}
+
+
 logo
+main
