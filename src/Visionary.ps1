@@ -20,25 +20,37 @@ function logo {
     # This function prints the logo and welcome message to the console 
     [double] $time = 0.15
     clear-host
+
+    # Define symbols
+    $b = " "
+    $u = "_"
+    $d = "-"
+    $p = "+"
+    $e = "="
+    $s = "*"
+    $h = "#"
+    $pc = "%"
+    $c = ":"
+
     Write-Host ""
     Start-Sleep -Seconds $time
-    Write-Host "                     ____--=====*==*##*+**+   " 
+    Write-Host "                     $u$u$u$u$d$d$e$e$e$e$s$e$e$s$h$h$p$s$s$p   " 
     Start-Sleep -Seconds $time                                                               
-    Write-Host "              ___--======**#%%**#%%%%###**-   " 
+    Write-Host "              $u$u$u$d$d$e$e$e$e$e$e$s$s$h$pc$pc$s$s$h$pc$pc$pc$pc$h$h$h$s$s$d   " 
     Start-Sleep -Seconds $time
-    Write-Host "            -==++ +%%######%  +%%%%%%%%*+-   " 
+    Write-Host "            $d$e$e$p$p $pc$pc$h$h$h$h$h$h$pc$b $p$pc$pc$pc$pc$pc$pc$pc$pc$s$p$d   " 
     Start-Sleep -Seconds $time
-    Write-Host "         -*%%%%%=  %%#####% *%%%%%%%%+-      " 
+    Write-Host "         $d$s$pc$pc$pc$pc$pc$e $pc$pc$h$h$h$h$h$pc $s$pc$pc$pc$pc$pc$pc$pc$pc$p$d      " 
     Start-Sleep -Seconds $time
-    Write-Host "       --+%%%%%%%%-       -+%%%%%%%%#=       "
+    Write-Host "       $d$d$p$pc$pc$pc$pc$pc$pc$pc$d       $d$p$pc$pc$pc$pc$pc$pc$pc$pc$h$e       "
     Start-Sleep -Seconds $time
-    Write-Host "      ----#%%%%%%%%%%%%%%%%%%%%#*+---         " 
+    Write-Host "      $d$d$d$d$h$pc$pc$pc$pc$pc$pc$pc$pc$pc$pc$pc$pc$pc$pc$pc$pc$pc$pc$pc$pc$h$s$p$d$d$d         " 
     Start-Sleep -Seconds $time
-    Write-Host "    -:::::-=++%##############%++++-           " 
+    Write-Host "    $d$c$c$c$c$c$d$e$p$p$h$h$h$h$h$h$h$h$h$h$h$h$h$h$h$h$p$p$p$d           " 
     Start-Sleep -Seconds $time
-    Write-Host "           ---============---                 "
+    Write-Host "           $d$d$d$e$e$e$e$e$e$e$e$e$e$d$d$d                 "
     Start-Sleep -Seconds $time
-    Write-Host "                              Visionary ($ProjectVersion)"
+    Write-Host " "
     #Write-Host "===========================================================" -ForegroundColor blue
 
     [int] $i = 0
@@ -202,7 +214,7 @@ function monitor {
     param (
         [string]$folderPath
     )
-    
+
     Clear-Host
 
     Write-Host "Enter the path to the input file (file to be encrypted)`n(E.g. C:/Your/Path/File.txt)" -ForegroundColor Yellow
@@ -235,7 +247,6 @@ function setup {
     if (-not (Test-Path $logFilePath)) {
         New-Item -Path $logFilePath -ItemType File -Force
     }
-    read-host
 
 }
 
