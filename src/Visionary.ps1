@@ -273,6 +273,10 @@ function monitor {
     Write-Host "Monitoring folder: $folderPath"
     log -logtype 1 -logMessage "Log: Started monitoring folder: $folderPath"
 
+    # Unregister any existing event handlers
+    Get-EventSubscriber | Where-Object { $_.SourceIdentifier -match "File" } | Unregister-Event
+
+
     $watcher = New-Object System.IO.FileSystemWatcher
     $watcher.Path = $folderPath
     $watcher.IncludeSubdirectories = $true
@@ -336,9 +340,9 @@ function setup {
 }
 
 function main {
-    log -logtype 1 -logMessage "Start: Visionary started"
     logo
     setup
+    log -logtype 1 -logMessage "Start: Visionary started"
     menu
 }
 
