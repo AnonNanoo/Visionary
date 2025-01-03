@@ -9,11 +9,12 @@
 [string] $Tempfolder = [Environment]::GetFolderPath('LocalApplicationData') + "\Visionary"
 
 # Source path of the directory to be monitored
-[string] $inputPath = ""
+[string] $folderPath = ""
 
 
 # File paths for settings and logs
 [string] $logFilePath = "$Tempfolder\Visionary.log"
+[string] $activityLogFilePath = "$Tempfolder\Activity.log"
 [string] $logMessage
 [int] $corrupted
 function logo {
@@ -21,7 +22,7 @@ function logo {
     [double] $time = 0.15
     clear-host
 
-    # Define symbols
+    # Symbols
     $b = " "
     $u = "_"
     $d = "-"
@@ -51,6 +52,7 @@ function logo {
     Write-Host "           $d$d$d$e$e$e$e$e$e$e$e$e$e$d$d$d                 "
     Start-Sleep -Seconds $time
     Write-Host " "
+    Write-Host "                                                  ($ProjectVersion)"
     #Write-Host "===========================================================" -ForegroundColor blue
 
     [int] $i = 0
@@ -83,7 +85,9 @@ function menu {
         Write-Host "|_________________________________________|"
         Write-Host "| (1) Monitor now                         |"
         Write-Host "| (2) Open Log                            |"
-        Write-Host "| (3) Sourcecode                          |"
+        Write-Host "| (3) Open Activity Log                   |"
+        Write-Host "| (4) Remove watchers                     |"
+        Write-Host "| (5) Sourcecode                          |"
         Write-Host "|                                         |"
         Write-Host "| (95) Deletion                           |"
         Write-Host "| (99) Exit                               |"
@@ -99,8 +103,17 @@ function menu {
                 printlog
             }
             3{
+                log -logtype 1 -logMessage "Log: Printed activity log"
+                printactivitylog
+            }
+            4{
+                log -logtype 1 -logMessage "Log: Removed watchers"
+                Write-Host "Watchers removed" -ForegroundColor Green
+                Start-Sleep -Seconds 1
+            }
+            5{
                 log -logtype 1 -logMessage "Log: Printed source code"
-                printSourceCode
+                printSourceCode 
             }
             95 {
                 log -logtype 1 -logMessage "Log: Initialized deletion dialogue"
@@ -164,6 +177,8 @@ function printSourceCode {
     menu
 }
 
+
+
 function log {
     # This function logs messages to the log file or error log file based on the given log type.
     param(
@@ -175,10 +190,10 @@ function log {
             [string] $timestamp = Get-Date -Format "dd-MM-yyyy HH:mm.sss"
             $logMessage = $logMessage + " at $timestamp"
             $logMessage | Out-File -FilePath $logFilePath -Append -Encoding utf8
-        } elseif ((test-path -path $ErrorLogFilepath) -and $logtype -eq 2) {   # 2 is for error log
+        } elseif ((test-path -path $activityLogFilePath) -and $logtype -eq 2) {   # 2 is for logging activities
             [string] $timestamp = Get-Date -Format "dd-MM-yyyy HH:mm.sss"
             $logMessage = $logMessage + " at $timestamp"
-            $logMessage | Out-File -FilePath $ErrorLogFilePath -Append -Encoding utf8
+            $logMessage | Out-File -FilePath $activityLogFilePath -Append -Encoding utf8
         }
     } catch {
         return
@@ -209,25 +224,49 @@ function printlog {
     Read-Host
 }
 
+function activitylog {
+    # This function prints the log file into the console.
+
+    Clear-Host
+    $logContent = Get-Content -Path $logFilePath
+    foreach ($line in $logContent) {
+        if ($line -match "File created:") {
+            $originalColor = $Host.UI.RawUI.ForegroundColor
+            $Host.UI.RawUI.ForegroundColor = "Green"
+            $line | Out-Host
+            $Host.UI.RawUI.ForegroundColor = $originalColor
+        } elseif ($line -match "File deleted:") {
+            $originalColor = $Host.UI.RawUI.ForegroundColor
+            $Host.UI.RawUI.ForegroundColor = "Red"
+            $line | Out-Host
+            $Host.UI.RawUI.ForegroundColor = $originalColor
+        } else {
+            $line | Out-Host
+        }
+    }
+    Write-Host "`nPress Enter to return to menu..."
+    Read-Host
+}
+
 # This function monitors the system and reports any issues
 function monitor {
+    # This function monitors the system and reports any issues
     param (
         [string]$folderPath
     )
 
-    Clear-Host
-
-    Write-Host "Enter the path to the input file (file to be encrypted)`n(E.g. C:/Your/Path/File.txt)" -ForegroundColor Yellow
-    $inputPath = Read-Host
+    # Prompt user for inputs
+    Write-Host "Enter the path to directory that wants to be monitored`n(E.g. C:/Your/Path/)" -ForegroundColor Yellow
+    $folderPath = Read-Host
 
     # Check if the input file exists
-    $inputExists = Test-Path $inputPath
+    $inputExists = Test-Path $folderPath
     if (-not $inputExists) {
         
-        Write-Host "`nInput file does not exist." -ForegroundColor Red
-        log -logtype 1 -logMessage "Error: Input folder missing or invalid"
+        Write-Host "`nInput file does not exist.`n" -ForegroundColor Red
+        log -logtype 1 -logMessage "Error: Input file missing or invalid"
 
-        Write-Host "`nPress any key to return to the menu..." -ForegroundColor Yellow
+        Write-Host "Press any key to return to the menu..." -ForegroundColor Yellow
         Read-Host
 
         $inputExists = $false
@@ -236,6 +275,60 @@ function monitor {
         return
     }
 
+
+
+    Write-Host "Monitoring folder: $folderPath"
+    log -logtype 1 -logMessage "Log: Started monitoring folder: $folderPath"
+
+    # Unregister any existing event handlers
+    Get-EventSubscriber | Where-Object { $_.SourceIdentifier -match "File" } | Unregister-Event
+
+
+    $watcher = New-Object System.IO.FileSystemWatcher
+    $watcher.Path = $folderPath
+    $watcher.IncludeSubdirectories = $true
+    $watcher.EnableRaisingEvents = $true
+
+
+    Register-ObjectEvent $watcher "Created" -Action {
+        $filePath = $Event.SourceEventArgs.FullPath
+        if ($filePath -ne $ActivityLogFilePath) {
+            $message = "File created: $filePath"
+            Write-Host $message
+            log -logtype 2 -logMessage "$message"
+        }
+    }
+    Register-ObjectEvent $watcher "Changed" -Action {
+        $filePath = $Event.SourceEventArgs.FullPath
+        if ($filePath -ne $ActivityLogFilePath) {
+            $message = "File changed: $filePath"
+            Write-Host $message
+            log -logtype 2 -logMessage "$message"
+        }
+    }
+    Register-ObjectEvent $watcher "Deleted" -Action {
+        $filePath = $Event.SourceEventArgs.FullPath
+        if ($filePath -ne $ActivityLogFilePath) {
+            $message = "File deleted: $filePath"
+            Write-Host $message
+            log -logtype 2 -logMessage "$message"
+        }
+    }
+    Register-ObjectEvent $watcher "Renamed" -Action {
+        $oldFilePath = $Event.SourceEventArgs.OldFullPath
+        $newFilePath = $Event.SourceEventArgs.FullPath
+        if ($oldFilePath -ne $ActivityLogFilePath -and $newFilePath -ne $ActivityLogFilePath) {
+            $message = "File renamed: $oldFilePath to $newFilePath"
+            Write-Host $message
+            log -logtype 2 -logMessage "$message"
+        }
+    }
+
+
+    # Keep the script running to monitor the folder
+    while ($true) {
+        Start-Sleep -Seconds 1
+    }
 }
 
 function setup {
@@ -247,13 +340,16 @@ function setup {
     if (-not (Test-Path $logFilePath)) {
         New-Item -Path $logFilePath -ItemType File -Force
     }
+    if (-not (Test-Path $activityLogFilePath)) {
+        New-Item -Path $activityLogFilePath -ItemType File -Force
+    }
 
 }
 
 function main {
-    log -logtype 1 -logMessage "Start: Visionary started"
     logo
     setup
+    log -logtype 1 -logMessage "Start: Visionary started"
     menu
 }
 
