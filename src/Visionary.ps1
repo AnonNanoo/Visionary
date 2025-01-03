@@ -52,6 +52,7 @@ function logo {
     Write-Host "           $d$d$d$e$e$e$e$e$e$e$e$e$e$d$d$d                 "
     Start-Sleep -Seconds $time
     Write-Host " "
+    Write-Host "                                                  ($ProjectVersion)"
     #Write-Host "===========================================================" -ForegroundColor blue
 
     [int] $i = 0
@@ -85,7 +86,8 @@ function menu {
         Write-Host "| (1) Monitor now                         |"
         Write-Host "| (2) Open Log                            |"
         Write-Host "| (3) Open Activity Log                   |"
-        Write-Host "| (4) Sourcecode                          |"
+        Write-Host "| (4) Remove watchers                     |"
+        Write-Host "| (5) Sourcecode                          |"
         Write-Host "|                                         |"
         Write-Host "| (95) Deletion                           |"
         Write-Host "| (99) Exit                               |"
@@ -105,6 +107,11 @@ function menu {
                 printactivitylog
             }
             4{
+                log -logtype 1 -logMessage "Log: Removed watchers"
+                Write-Host "Watchers removed" -ForegroundColor Green
+                Start-Sleep -Seconds 1
+            }
+            5{
                 log -logtype 1 -logMessage "Log: Printed source code"
                 printSourceCode 
             }
