@@ -1,6 +1,23 @@
 # Project related variables
+# Variables
+[int] $menuinput # User input for menu selection
+[string] $syncoptions # Sync options
+
+# Project related variables
 [string] $ProjectName = "Visionary"
 [string] $ProjectVersion = "0.0.0.1"
+[string] $Tempfolder = [Environment]::GetFolderPath('LocalApplicationData') + "\$ProjectName"
+
+# Source path of the directory to be monitored
+[string] $inputPath = ""
+
+
+# File paths for settings and logs
+[string] $settingsFilePath = "$Tempfolder\Settings.dll"
+[string] $ErrorLogFilePath = "$Tempfolder\ErrorLog.log"
+[string] $logFilePath = "$Tempfolder\Visionary.log"
+[string] $logMessage
+[int] $corrupted
 function logo {
     # This function prints the logo and welcome message to the console 
     [double] $time = 0.15
@@ -47,16 +64,39 @@ function logo {
     Read-Host
 }
 
-# Call the 
+# This function monitors the system and reports any issues
+function monitor {
+    param (
+        [string]$folderPath
+    )
 
-function main
-{
+    Write-Host "Enter the path to the input file (file to be encrypted)`n(E.g. C:/Your/Path/File.txt)" -ForegroundColor Yellow
+    $inputPath = Read-Host
+
+    # Check if the input file exists
+    $inputExists = Test-Path $inputPath
+    if (-not $inputExists) {
+        
+        Write-Host "`nInput file does not exist." -ForegroundColor Red
+        log -logtype 2 -logMessage "Error: Input file missing or invalid"
+
+        Write-Host "`nPress any key to return to the menu..." -ForegroundColor Yellow
+        Read-Host
+
+        $inputExists = $false
+
+        menu
+        return
+    }
+
+}
+
+function main {
     logo
-    Write-Host "Welcome to Visionary" -ForegroundColor Green
-    Write-Host "Project Name: $ProjectName" -ForegroundColor Green
-    Write-Host "Project Version: $ProjectVersion" -ForegroundColor Green
+    setup
+    #menu
 }
 
 
-logo
+
 main
