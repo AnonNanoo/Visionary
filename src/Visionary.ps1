@@ -259,7 +259,7 @@ function monitor {
         if ($filePath -ne $ActivityLogFilePath) {
             $message = "File created: $filePath"
             Write-Host $message
-            log -logtype 3 -logMessage $message
+            log -logtype 2 -logMessage "$message"
         }
     }
     Register-ObjectEvent $watcher "Changed" -Action {
@@ -267,7 +267,7 @@ function monitor {
         if ($filePath -ne $ActivityLogFilePath) {
             $message = "File changed: $filePath"
             Write-Host $message
-            log -logtype 3 -logMessage $message
+            log -logtype 2 -logMessage "$message"
         }
     }
     Register-ObjectEvent $watcher "Deleted" -Action {
@@ -275,7 +275,7 @@ function monitor {
         if ($filePath -ne $ActivityLogFilePath) {
             $message = "File deleted: $filePath"
             Write-Host $message
-            log -logtype 3 -logMessage $message
+            log -logtype 2 -logMessage "$message"
         }
     }
     Register-ObjectEvent $watcher "Renamed" -Action {
@@ -284,7 +284,7 @@ function monitor {
         if ($oldFilePath -ne $ActivityLogFilePath -and $newFilePath -ne $ActivityLogFilePath) {
             $message = "File renamed: $oldFilePath to $newFilePath"
             Write-Host $message
-            log -logtype 3 -logMessage $message
+            log -logtype 2 -logMessage "$message"
         }
     }
 
