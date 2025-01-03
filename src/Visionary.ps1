@@ -220,7 +220,7 @@ function monitor {
     )
 
     # Prompt user for inputs
-    Write-Host "Enter the path to the input file (file to be encrypted)`n(E.g. C:/Your/Path/File.txt)" -ForegroundColor Yellow
+    Write-Host "Enter the path to directory that wants to be monitored`n(E.g. C:/Your/Path/)" -ForegroundColor Yellow
     $folderPath = Read-Host
 
     # Check if the input file exists
@@ -249,26 +249,45 @@ function monitor {
     $watcher.IncludeSubdirectories = $true
     $watcher.EnableRaisingEvents = $true
 
+    $watcher = New-Object System.IO.FileSystemWatcher
+    $watcher.Path = $folderPath
+    $watcher.IncludeSubdirectories = $true
+    $watcher.EnableRaisingEvents = $true
+
     Register-ObjectEvent $watcher "Created" -Action {
-        $message = "File created: $($Event.SourceEventArgs.FullPath)"
-        Write-Host $message
-        log -logtype 2 -logMessage "$message"
+        $filePath = $Event.SourceEventArgs.FullPath
+        if ($filePath -ne $ActivityLogFilePath) {
+            $message = "File created: $filePath"
+            Write-Host $message
+            log -logtype 3 -logMessage $message
+        }
     }
     Register-ObjectEvent $watcher "Changed" -Action {
-        $message = "File changed: $($Event.SourceEventArgs.FullPath)"
-        Write-Host $message
-        log -logtype 2 -logMessage "$message"
+        $filePath = $Event.SourceEventArgs.FullPath
+        if ($filePath -ne $ActivityLogFilePath) {
+            $message = "File changed: $filePath"
+            Write-Host $message
+            log -logtype 3 -logMessage $message
+        }
     }
     Register-ObjectEvent $watcher "Deleted" -Action {
-        $message = "File deleted: $($Event.SourceEventArgs.FullPath)"
-        Write-Host $message
-        log -logtype 2 -logMessage "$message"
+        $filePath = $Event.SourceEventArgs.FullPath
+        if ($filePath -ne $ActivityLogFilePath) {
+            $message = "File deleted: $filePath"
+            Write-Host $message
+            log -logtype 3 -logMessage $message
+        }
     }
     Register-ObjectEvent $watcher "Renamed" -Action {
-        $message = "File renamed: $($Event.SourceEventArgs.OldFullPath) to $($Event.SourceEventArgs.FullPath)"
-        Write-Host $message
-        log -logtype 2 -logMessage "$message"
+        $oldFilePath = $Event.SourceEventArgs.OldFullPath
+        $newFilePath = $Event.SourceEventArgs.FullPath
+        if ($oldFilePath -ne $ActivityLogFilePath -and $newFilePath -ne $ActivityLogFilePath) {
+            $message = "File renamed: $oldFilePath to $newFilePath"
+            Write-Host $message
+            log -logtype 3 -logMessage $message
+        }
     }
+
 
     # Keep the script running to monitor the folder
     while ($true) {
