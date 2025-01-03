@@ -84,7 +84,8 @@ function menu {
         Write-Host "|_________________________________________|"
         Write-Host "| (1) Monitor now                         |"
         Write-Host "| (2) Open Log                            |"
-        Write-Host "| (3) Sourcecode                          |"
+        Write-Host "| (3) Open Activity Log                   |"
+        Write-Host "| (4) Sourcecode                          |"
         Write-Host "|                                         |"
         Write-Host "| (95) Deletion                           |"
         Write-Host "| (99) Exit                               |"
@@ -100,8 +101,12 @@ function menu {
                 printlog
             }
             3{
+                log -logtype 1 -logMessage "Log: Printed activity log"
+                printactivitylog
+            }
+            4{
                 log -logtype 1 -logMessage "Log: Printed source code"
-                printSourceCode
+                printSourceCode 
             }
             95 {
                 log -logtype 1 -logMessage "Log: Initialized deletion dialogue"
@@ -212,6 +217,30 @@ function printlog {
     Read-Host
 }
 
+function activitylog {
+    # This function prints the log file into the console.
+
+    Clear-Host
+    $logContent = Get-Content -Path $logFilePath
+    foreach ($line in $logContent) {
+        if ($line -match "File created:") {
+            $originalColor = $Host.UI.RawUI.ForegroundColor
+            $Host.UI.RawUI.ForegroundColor = "Green"
+            $line | Out-Host
+            $Host.UI.RawUI.ForegroundColor = $originalColor
+        } elseif ($line -match "File deleted:") {
+            $originalColor = $Host.UI.RawUI.ForegroundColor
+            $Host.UI.RawUI.ForegroundColor = "Red"
+            $line | Out-Host
+            $Host.UI.RawUI.ForegroundColor = $originalColor
+        } else {
+            $line | Out-Host
+        }
+    }
+    Write-Host "`nPress Enter to return to menu..."
+    Read-Host
+}
+
 # This function monitors the system and reports any issues
 function monitor {
     # This function monitors the system and reports any issues
@@ -249,10 +278,6 @@ function monitor {
     $watcher.IncludeSubdirectories = $true
     $watcher.EnableRaisingEvents = $true
 
-    $watcher = New-Object System.IO.FileSystemWatcher
-    $watcher.Path = $folderPath
-    $watcher.IncludeSubdirectories = $true
-    $watcher.EnableRaisingEvents = $true
 
     Register-ObjectEvent $watcher "Created" -Action {
         $filePath = $Event.SourceEventArgs.FullPath
