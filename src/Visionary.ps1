@@ -52,7 +52,7 @@ function logo {
     Write-Host "           $d$d$d$e$e$e$e$e$e$e$e$e$e$d$d$d                 "
     Start-Sleep -Seconds $time
     Write-Host " "
-    Write-Host "                                                  ($ProjectVersion)"
+    Write-Host "                                        ($ProjectVersion)"
     #Write-Host "===========================================================" -ForegroundColor blue
 
     [int] $i = 0
@@ -86,7 +86,7 @@ function menu {
         Write-Host "| (1) Monitor now                         |"
         Write-Host "| (2) Open Log                            |"
         Write-Host "| (3) Open Activity Log                   |"
-        Write-Host "| (4) Remove watchers                     |"
+        Write-Host "| (4) Manage watchers                     |"
         Write-Host "| (5) Sourcecode                          |"
         Write-Host "|                                         |"
         Write-Host "| (95) Deletion                           |"
@@ -108,7 +108,7 @@ function menu {
             }
             4{
                 log -logtype 1 -logMessage "Log: Removed watchers"
-                Write-Host "Watchers removed" -ForegroundColor Green
+                removeWatcher
                 Start-Sleep -Seconds 1
             }
             5{
@@ -224,11 +224,11 @@ function printlog {
     Read-Host
 }
 
-function activitylog {
-    # This function prints the log file into the console.
+function printactivitylog {
+    # This function prints the activity log file into the console.
 
     Clear-Host
-    $logContent = Get-Content -Path $logFilePath
+    $logContent = Get-Content -Path $activityLogFilePath
     foreach ($line in $logContent) {
         if ($line -match "File created:") {
             $originalColor = $Host.UI.RawUI.ForegroundColor
@@ -240,6 +240,16 @@ function activitylog {
             $Host.UI.RawUI.ForegroundColor = "Red"
             $line | Out-Host
             $Host.UI.RawUI.ForegroundColor = $originalColor
+        }elseif ($line -match "File changed:") {
+            $originalColor = $Host.UI.RawUI.ForegroundColor
+            $Host.UI.RawUI.ForegroundColor = "Yellow"
+            $line | Out-Host
+            $Host.UI.RawUI.ForegroundColor = $originalColor
+        }elseif ($line -match "File Renamed:") {
+            $originalColor = $Host.UI.RawUI.ForegroundColor
+            $Host.UI.RawUI.ForegroundColor = "DarkYellow"
+            $line | Out-Host
+            $Host.UI.RawUI.ForegroundColor = $originalColor
         } else {
             $line | Out-Host
         }
@@ -248,12 +258,17 @@ function activitylog {
     Read-Host
 }
 
-# This function monitors the system and reports any issues
+
+function manageWatchers{
+
+}
 function monitor {
     # This function monitors the system and reports any issues
     param (
         [string]$folderPath
     )
+
+    
 
     # Prompt user for inputs
     Write-Host "Enter the path to directory that wants to be monitored`n(E.g. C:/Your/Path/)" -ForegroundColor Yellow
@@ -317,18 +332,45 @@ function monitor {
     Register-ObjectEvent $watcher "Renamed" -Action {
         $oldFilePath = $Event.SourceEventArgs.OldFullPath
         $newFilePath = $Event.SourceEventArgs.FullPath
-        if ($oldFilePath -ne $ActivityLogFilePath -and $newFilePath -ne $ActivityLogFilePath) {
+        if ($oldFilePath -ne $ActivityLogFilePath -and $newFilePath -ne $ActivityLogFilePath -and $oldFilePath -ne $logFilePath -and $newFilePath -ne $logFilePath) {
             $message = "File renamed: $oldFilePath to $newFilePath"
             Write-Host $message
             log -logtype 2 -logMessage "$message"
         }
     }
-
-
+    
+<#
+    $runspace = [powershell]::Create().AddScript({
+        while ($true) {
+            if ($Host.UI.RawUI.KeyAvailable) {
+                $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                if ($key.Character -eq 'q') {
+                    $script:pressed = 'q'
+                    break
+                }
+            }
+            Start-Sleep -Milliseconds 100
+        }
+    })
+    $runspace.BeginInvoke()
+    
     # Keep the script running to monitor the folder
     while ($true) {
         Start-Sleep -Seconds 1
+        if ($script:pressed -eq "q") {
+            break
+        }
     }
+    
+    # Clean up the runspace
+    $runspace.Dispose()
+    #>
+
+    # Keep the script running to monitor the folder
+    while ($true) {
+        Start-Sleep -Seconds 0.5
+    }
+    
 }
 
 function setup {
@@ -344,6 +386,16 @@ function setup {
         New-Item -Path $activityLogFilePath -ItemType File -Force
     }
 
+}
+
+function removeWatcher{
+    if ($null -ne $watcherEvent) {
+        Unregister-Event -SubscriptionId $watcherEvent.Id
+        $watcherEvent = $null
+        Write-Host "Watcher removed."
+    } else {
+        Write-Host "No watcher to remove."
+    }
 }
 
 function main {
