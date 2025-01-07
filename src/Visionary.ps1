@@ -108,7 +108,7 @@ function menu {
             }
             4{
                 log -logtype 1 -logMessage "Log: Removed watchers"
-                manageWatchers
+                removeWatcher
                 Start-Sleep -Seconds 1
             }
             5{
@@ -338,7 +338,8 @@ function monitor {
             log -logtype 2 -logMessage "$message"
         }
     }
-
+    
+<#
     $runspace = [powershell]::Create().AddScript({
         while ($true) {
             if ($Host.UI.RawUI.KeyAvailable) {
@@ -363,7 +364,12 @@ function monitor {
     
     # Clean up the runspace
     $runspace.Dispose()
+    #>
+
     # Keep the script running to monitor the folder
+    while ($true) {
+        Start-Sleep -Seconds 0.5
+    }
     
 }
 
