@@ -49,7 +49,7 @@ function logo {
     Start-Sleep -Seconds $time
     Write-Host "    $d$c$c$c$c$c$d$e$p$p$h$h$h$h$h$h$h$h$h$h$h$h$h$h$h$h$p$p$p$d           " 
     Start-Sleep -Seconds $time
-    Write-Host "           $d$d$d$e$e$e$e$e$e$e$e$e$e$d$d$d                 "
+    Write-Host "           $d$d$d$e$e$e$e$e$e$e$e$e$e$e$e$e$d$d$d                 "
     Start-Sleep -Seconds $time
     Write-Host " "
     Write-Host "                                        ($ProjectVersion)"
@@ -86,7 +86,7 @@ function menu {
         Write-Host "| (1) Monitor now                         |"
         Write-Host "| (2) Open Log                            |"
         Write-Host "| (3) Open Activity Log                   |"
-        Write-Host "| (4) Manage watchers                     |"
+        Write-Host "| (4) Remove Watchers                     |"
         Write-Host "| (5) Sourcecode                          |"
         Write-Host "|                                         |"
         Write-Host "| (95) Deletion                           |"
@@ -295,14 +295,14 @@ function monitor {
     Write-Host "Monitoring folder: $folderPath"
     log -logtype 1 -logMessage "Log: Started monitoring folder: $folderPath"
 
-    # Unregister any existing event handlers
-    Get-EventSubscriber | Where-Object { $_.SourceIdentifier -match "File" } | Unregister-Event
-
+    # Unregister all existing event handlers
+    Get-EventSubscriber | Unregister-Event
 
     $watcher = New-Object System.IO.FileSystemWatcher
     $watcher.Path = $folderPath
     $watcher.IncludeSubdirectories = $true
     $watcher.EnableRaisingEvents = $true
+    
 
 
     Register-ObjectEvent $watcher "Created" -Action {
@@ -339,8 +339,14 @@ function monitor {
         }
     }
     
-<#
-    $runspace = [powershell]::Create().AddScript({
+    $runspace = [runspacefactory]::CreateRunspace()
+    $runspace.ThreadOptions = "ReuseThread"
+    $runspace.ApartmentState = "STA"
+    $runspace.Open()
+    
+    $ps = [powershell]::Create()
+    $ps.Runspace = $runspace
+    $ps.AddScript({
         while ($true) {
             if ($Host.UI.RawUI.KeyAvailable) {
                 $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -352,24 +358,24 @@ function monitor {
             Start-Sleep -Milliseconds 100
         }
     })
-    $runspace.BeginInvoke()
+    
+    $ps.BeginInvoke()
     
     # Keep the script running to monitor the folder
     while ($true) {
         Start-Sleep -Seconds 1
-        if ($script:pressed -eq "q") {
+        if ($script:pressed -eq 'q') {
             break
         }
     }
     
-    # Clean up the runspace
-    $runspace.Dispose()
-    #>
 
     # Keep the script running to monitor the folder
+    <#
     while ($true) {
         Start-Sleep -Seconds 0.5
     }
+    #>
     
 }
 
