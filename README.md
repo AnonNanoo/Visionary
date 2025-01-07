@@ -9,4 +9,4 @@ Small note, the way the logo gets displayed is worth to look at...
 
 🚧 Under major construction!!! 🚧
 
-## Monitoring services duplicate for each path given!! So this script actually works even without it running! Issue will be fixed soon enough.
+## Monitoring services duplicate for each path given!! Watchers cease to exist once the session in powershell is closed!
