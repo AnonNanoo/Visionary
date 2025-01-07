@@ -52,7 +52,7 @@ function logo {
     Write-Host "           $d$d$d$e$e$e$e$e$e$e$e$e$e$d$d$d                 "
     Start-Sleep -Seconds $time
     Write-Host " "
-    Write-Host "                                                  ($ProjectVersion)"
+    Write-Host "                                        ($ProjectVersion)"
     #Write-Host "===========================================================" -ForegroundColor blue
 
     [int] $i = 0
@@ -224,11 +224,11 @@ function printlog {
     Read-Host
 }
 
-function activitylog {
-    # This function prints the log file into the console.
+function printactivitylog {
+    # This function prints the activity log file into the console.
 
     Clear-Host
-    $logContent = Get-Content -Path $logFilePath
+    $logContent = Get-Content -Path $activityLogFilePath
     foreach ($line in $logContent) {
         if ($line -match "File created:") {
             $originalColor = $Host.UI.RawUI.ForegroundColor
@@ -238,6 +238,16 @@ function activitylog {
         } elseif ($line -match "File deleted:") {
             $originalColor = $Host.UI.RawUI.ForegroundColor
             $Host.UI.RawUI.ForegroundColor = "Red"
+            $line | Out-Host
+            $Host.UI.RawUI.ForegroundColor = $originalColor
+        }elseif ($line -match "File changed:") {
+            $originalColor = $Host.UI.RawUI.ForegroundColor
+            $Host.UI.RawUI.ForegroundColor = "Yellow"
+            $line | Out-Host
+            $Host.UI.RawUI.ForegroundColor = $originalColor
+        }elseif ($line -match "File Renamed:") {
+            $originalColor = $Host.UI.RawUI.ForegroundColor
+            $Host.UI.RawUI.ForegroundColor = "DarkYellow"
             $line | Out-Host
             $Host.UI.RawUI.ForegroundColor = $originalColor
         } else {
