@@ -79,7 +79,7 @@ function logo {
 function menu {
     clear-host
     do {
-        clear-host
+        Clear-Host
         Write-Host "`n==========================================="
         Write-Host "| $ProjectName (ver.$ProjectVersion)                 |"
         Write-Host "|_________________________________________|"
@@ -309,7 +309,7 @@ function monitor {
         $filePath = $Event.SourceEventArgs.FullPath
         if ($filePath -ne $ActivityLogFilePath) {
             $message = "File created: $filePath"
-            Write-Host $message
+            Write-Host $message -ForegroundColor Green
             log -logtype 2 -logMessage "$message"
         }
     }
@@ -317,7 +317,7 @@ function monitor {
         $filePath = $Event.SourceEventArgs.FullPath
         if ($filePath -ne $ActivityLogFilePath) {
             $message = "File changed: $filePath"
-            Write-Host $message
+            Write-Host $message -ForegroundColor Yellow
             log -logtype 2 -logMessage "$message"
         }
     }
@@ -325,7 +325,7 @@ function monitor {
         $filePath = $Event.SourceEventArgs.FullPath
         if ($filePath -ne $ActivityLogFilePath) {
             $message = "File deleted: $filePath"
-            Write-Host $message
+            Write-Host $message -ForegroundColor Red
             log -logtype 2 -logMessage "$message"
         }
     }
@@ -334,7 +334,7 @@ function monitor {
         $newFilePath = $Event.SourceEventArgs.FullPath
         if ($oldFilePath -ne $ActivityLogFilePath -and $newFilePath -ne $ActivityLogFilePath -and $oldFilePath -ne $logFilePath -and $newFilePath -ne $logFilePath) {
             $message = "File renamed: $oldFilePath to $newFilePath"
-            Write-Host $message
+            Write-Host $message -ForegroundColor DarkYellow
             log -logtype 2 -logMessage "$message"
         }
     }
