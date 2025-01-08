@@ -51,7 +51,6 @@ function logo {
     Start-Sleep -Seconds $time
     Write-Host "           $d$d$d$e$e$e$e$e$e$e$e$e$e$e$e$e$d$d$d                 "
     Start-Sleep -Seconds $time
-    Write-Host " "
     Write-Host "                                        ($ProjectVersion)"
     #Write-Host "===========================================================" -ForegroundColor blue
 
@@ -214,7 +213,8 @@ function printlog {
         } elseif ($line -match "Error:") {
             $originalColor = $Host.UI.RawUI.ForegroundColor
             $Host.UI.RawUI.ForegroundColor = "Red"
-            $line | Out-Host
+            $line 
+            | Out-Host
             $Host.UI.RawUI.ForegroundColor = $originalColor
         } else {
             $line | Out-Host
@@ -307,7 +307,7 @@ function monitor {
 
     Register-ObjectEvent $watcher "Created" -Action {
         $filePath = $Event.SourceEventArgs.FullPath
-        if ($filePath -ne $ActivityLogFilePath) {
+        if ($filePath -ne $activityLogFilePath) {
             $message = "File created: $filePath"
             Write-Host $message -ForegroundColor Green
             log -logtype 2 -logMessage "$message"
@@ -315,7 +315,7 @@ function monitor {
     }
     Register-ObjectEvent $watcher "Changed" -Action {
         $filePath = $Event.SourceEventArgs.FullPath
-        if ($filePath -ne $ActivityLogFilePath) {
+        if ($filePath -ne $activityLogFilePath) {
             $message = "File changed: $filePath"
             Write-Host $message -ForegroundColor Yellow
             log -logtype 2 -logMessage "$message"
@@ -323,7 +323,7 @@ function monitor {
     }
     Register-ObjectEvent $watcher "Deleted" -Action {
         $filePath = $Event.SourceEventArgs.FullPath
-        if ($filePath -ne $ActivityLogFilePath) {
+        if ($filePath -ne $activityLogFilePath) {
             $message = "File deleted: $filePath"
             Write-Host $message -ForegroundColor Red
             log -logtype 2 -logMessage "$message"
@@ -332,7 +332,7 @@ function monitor {
     Register-ObjectEvent $watcher "Renamed" -Action {
         $oldFilePath = $Event.SourceEventArgs.OldFullPath
         $newFilePath = $Event.SourceEventArgs.FullPath
-        if ($oldFilePath -ne $ActivityLogFilePath -and $newFilePath -ne $ActivityLogFilePath -and $oldFilePath -ne $logFilePath -and $newFilePath -ne $logFilePath) {
+        if ($oldFilePath -ne $activityLogFilePath -and $newFilePath -ne $activityLogFilePath -and $oldFilePath -ne $logFilePath -and $newFilePath -ne $logFilePath) {
             $message = "File renamed: $oldFilePath to $newFilePath"
             Write-Host $message -ForegroundColor DarkYellow
             log -logtype 2 -logMessage "$message"
