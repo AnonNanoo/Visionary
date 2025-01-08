@@ -49,9 +49,8 @@ function logo {
     Start-Sleep -Seconds $time
     Write-Host "    $d$c$c$c$c$c$d$e$p$p$h$h$h$h$h$h$h$h$h$h$h$h$h$h$h$h$p$p$p$d           " 
     Start-Sleep -Seconds $time
-    Write-Host "           $d$d$d$e$e$e$e$e$e$e$e$e$e$d$d$d                 "
+    Write-Host "           $d$d$d$e$e$e$e$e$e$e$e$e$e$e$e$e$d$d$d                 "
     Start-Sleep -Seconds $time
-    Write-Host " "
     Write-Host "                                        ($ProjectVersion)"
     #Write-Host "===========================================================" -ForegroundColor blue
 
@@ -79,14 +78,14 @@ function logo {
 function menu {
     clear-host
     do {
-        clear-host
+        Clear-Host
         Write-Host "`n==========================================="
         Write-Host "| $ProjectName (ver.$ProjectVersion)                 |"
         Write-Host "|_________________________________________|"
         Write-Host "| (1) Monitor now                         |"
         Write-Host "| (2) Open Log                            |"
         Write-Host "| (3) Open Activity Log                   |"
-        Write-Host "| (4) Manage watchers                     |"
+        Write-Host "| (4) Remove Watchers                     |"
         Write-Host "| (5) Sourcecode                          |"
         Write-Host "|                                         |"
         Write-Host "| (95) Deletion                           |"
@@ -214,7 +213,8 @@ function printlog {
         } elseif ($line -match "Error:") {
             $originalColor = $Host.UI.RawUI.ForegroundColor
             $Host.UI.RawUI.ForegroundColor = "Red"
-            $line | Out-Host
+            $line 
+            | Out-Host
             $Host.UI.RawUI.ForegroundColor = $originalColor
         } else {
             $line | Out-Host
@@ -295,52 +295,58 @@ function monitor {
     Write-Host "Monitoring folder: $folderPath"
     log -logtype 1 -logMessage "Log: Started monitoring folder: $folderPath"
 
-    # Unregister any existing event handlers
-    Get-EventSubscriber | Where-Object { $_.SourceIdentifier -match "File" } | Unregister-Event
-
+    # Unregister all existing event handlers
+    Get-EventSubscriber | Unregister-Event
 
     $watcher = New-Object System.IO.FileSystemWatcher
     $watcher.Path = $folderPath
     $watcher.IncludeSubdirectories = $true
     $watcher.EnableRaisingEvents = $true
+    
 
 
     Register-ObjectEvent $watcher "Created" -Action {
         $filePath = $Event.SourceEventArgs.FullPath
-        if ($filePath -ne $ActivityLogFilePath) {
+        if ($filePath -ne $activityLogFilePath) {
             $message = "File created: $filePath"
-            Write-Host $message
+            Write-Host $message -ForegroundColor Green
             log -logtype 2 -logMessage "$message"
         }
     }
     Register-ObjectEvent $watcher "Changed" -Action {
         $filePath = $Event.SourceEventArgs.FullPath
-        if ($filePath -ne $ActivityLogFilePath) {
+        if ($filePath -ne $activityLogFilePath) {
             $message = "File changed: $filePath"
-            Write-Host $message
+            Write-Host $message -ForegroundColor Yellow
             log -logtype 2 -logMessage "$message"
         }
     }
     Register-ObjectEvent $watcher "Deleted" -Action {
         $filePath = $Event.SourceEventArgs.FullPath
-        if ($filePath -ne $ActivityLogFilePath) {
+        if ($filePath -ne $activityLogFilePath) {
             $message = "File deleted: $filePath"
-            Write-Host $message
+            Write-Host $message -ForegroundColor Red
             log -logtype 2 -logMessage "$message"
         }
     }
     Register-ObjectEvent $watcher "Renamed" -Action {
         $oldFilePath = $Event.SourceEventArgs.OldFullPath
         $newFilePath = $Event.SourceEventArgs.FullPath
-        if ($oldFilePath -ne $ActivityLogFilePath -and $newFilePath -ne $ActivityLogFilePath -and $oldFilePath -ne $logFilePath -and $newFilePath -ne $logFilePath) {
+        if ($oldFilePath -ne $activityLogFilePath -and $newFilePath -ne $activityLogFilePath -and $oldFilePath -ne $logFilePath -and $newFilePath -ne $logFilePath) {
             $message = "File renamed: $oldFilePath to $newFilePath"
-            Write-Host $message
+            Write-Host $message -ForegroundColor DarkYellow
             log -logtype 2 -logMessage "$message"
         }
     }
     
-<#
-    $runspace = [powershell]::Create().AddScript({
+    $runspace = [runspacefactory]::CreateRunspace()
+    $runspace.ThreadOptions = "ReuseThread"
+    $runspace.ApartmentState = "STA"
+    $runspace.Open()
+    
+    $ps = [powershell]::Create()
+    $ps.Runspace = $runspace
+    $ps.AddScript({
         while ($true) {
             if ($Host.UI.RawUI.KeyAvailable) {
                 $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -352,24 +358,24 @@ function monitor {
             Start-Sleep -Milliseconds 100
         }
     })
-    $runspace.BeginInvoke()
+    
+    $ps.BeginInvoke()
     
     # Keep the script running to monitor the folder
     while ($true) {
         Start-Sleep -Seconds 1
-        if ($script:pressed -eq "q") {
+        if ($script:pressed -eq 'q') {
             break
         }
     }
     
-    # Clean up the runspace
-    $runspace.Dispose()
-    #>
 
     # Keep the script running to monitor the folder
+    <#
     while ($true) {
         Start-Sleep -Seconds 0.5
     }
+    #>
     
 }
 
